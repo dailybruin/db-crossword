@@ -1,15 +1,9 @@
 import React from 'react';
-import CrosswordTest from '../components/Crossword'
+import HomeLayout from '../layouts/HomeLayout';
 import './App.css'
 
 function App() {
-  return (
-    <div>
-      <h1>Crossword</h1>
-
-      <CrosswordTest />
-    </div>
-  )
+  return (<HomeLayout />);
 }
 
 export default App
