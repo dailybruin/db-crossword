@@ -15,43 +15,76 @@
  * copies or substantial portions of the Software.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import ReactCrossword from "@jaredreisinger/react-crossword";
+import AssistBar from "../AssistBar";
 import "./crossword.css";
 
-export default function Crossword() {
-  const [complete, setComplete] = useState(false);
-  const [data, setData] = useState(null);
+const formatTime = (seconds) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
 
-  useEffect(() => {
-    fetch("http://localhost:3000/api/crossword/latest")
-      .then(res => res.json())
-      .then(json => setData(json.crossword))
-      .catch(err => console.error("Failed to load crossword data:", err));
-  }, []);
+export default function Crossword({ data }) {
+  const crosswordRef = useRef(null);
+  const [complete, setComplete] = useState(false);
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(true);
+  const [correctClues, setCorrectClues] = useState(0);
+  const [showModal, setShowModal] = useState(true);
 
   const handleCrosswordCorrect = (isCorrect) => {
     if (isCorrect) {
-      console.log("Crossword entirely correct!");
+      setIsRunning(false);
       setComplete(true);
     } else {
-      console.log("Incorrect crossword!");
+      setComplete(false);
     }
   };
 
   const handleCorrect = (direction, number, answer) => {
-    console.log(`Clue ${direction} ${number} correct: ${answer}`);
+    setCorrectClues(prev => prev + 1);
   };
 
   if (!data) return <div>Loading crossword…</div>;
 
   return (
     <div>
-      {complete && <div className="congratulations">🎉 You solved it! 🎉</div>}
+      {complete && showModal && (
+        <div className="completion-modal">
+          <div className="completion-content">
+            <button className="close-button" onClick={() => setShowModal(false)}>×</button>
+            <h2>🎉 Congratulations! 🎉</h2>
+            <p>You've completed the Daily Bruin Crossword!</p>
+            <div className="completion-stats">
+              <div className="stat">
+                <span className="stat-label">Time:</span>
+                <span className="stat-value">{formatTime(time)}</span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Clues Solved:</span>
+                <span className="stat-value">{correctClues}</span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Date:</span>
+                <span className="stat-value">{new Date().toLocaleDateString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      <AssistBar
+        data={data}
+        crosswordRef={crosswordRef}
+        time={time}
+        setTime={setTime}
+        isRunning={isRunning}
+        setIsRunning={setIsRunning} />
       <div className="d-flex">
         <ReactCrossword
+          ref={crosswordRef}
           data={data}
-          theme={{ columnBreakpoint: "512px" }}
           onCorrect={handleCorrect}
           onCrosswordCorrect={handleCrosswordCorrect}
         />

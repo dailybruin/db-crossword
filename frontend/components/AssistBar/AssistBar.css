@@ -1,0 +1,33 @@
+.bar-wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 1215px;
+    background-color: rgb(225, 225, 225);
+    justify-content: space-between;
+}
+
+.assist-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.timer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.timer span {
+    font-size: 20px;
+    font-family: monospace;
+    min-width: 60px;
+}
+
+button {
+    font-size: 19px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+

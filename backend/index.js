@@ -6,7 +6,7 @@ app.use(cors())
 
 const port = 3000;
 
-// Proxy route to fetch the latest crossword
+// Fetch the latest crossword
 app.get("/api/crossword/latest", async (req, res) => {
   try {
     // crossword-list.txt contains the filename of the latest crossword
@@ -20,17 +20,12 @@ app.get("/api/crossword/latest", async (req, res) => {
     const crosswordRes = await fetch(`https://wp.dailybruin.com/wp-content/crosswords/${latest_file}`);
     const crossword = await crosswordRes.json();
 
-    res.json({ date: latest_file.split("-")[0], crossword });
+    const date = latest_file.split('/')[1].substring(0,10);
+    res.json({ date: date, crossword });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error fetching crossword");
   }
-});
-
-
-// Optional: basic test route
-app.get("/", (req, res) => {
-  res.send("Hello from Express!");
 });
 
 // Start the server

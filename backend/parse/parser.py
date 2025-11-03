@@ -135,8 +135,9 @@ def parse_crossword(html_path):
 
 
 if __name__ == "__main__":
-    crossword_data = parse_crossword("./htmls/crossword.html")
-    with open("crossword_data.json", "w", encoding="utf-8") as f:
+    crossword_data = parse_crossword("./htmls/second.html")
+    saveToName = "crossword_data2.json"
+    with open(saveToName, "w", encoding="utf-8") as f:
         json.dump(crossword_data, f, ensure_ascii=False, indent=2)
 
-    print("Saved crossword data to crossword_data.json")
+    print(f"Saved crossword data to {saveToName}")
