@@ -1,14 +1,17 @@
 .d-flex {
   display: flex;
+  flex-direction: row;
   height: 620px;
   justify-content: center; /* center horizontally */
+  align-items: stretch; /* allow children to stretch vertically */
+  gap: 24px;
 }
 
 .clues {
   display: flex;
   justify-content: center;
-  width: 600px !important;
-  max-width: 600px !important;
+  width: 100%;
+  max-width: 380px !important; /* limit clues area so grid can expand */
   align-items: flex-start !important;
   text-align: left;
   padding: 0px !important;
@@ -32,11 +35,11 @@
 }
 
 .clue:hover {
-    background-color: rgb(237, 237, 237);
+  background-color: rgb(237, 237, 237);
 }
 
 .clue:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .crossword,
@@ -44,8 +47,12 @@
   height: 100% !important;
   max-height: 100% !important;
   min-height: 100% !important;
-  max-width: 612px !important;
-  min-width: 612px !important;
+  /* allow the grid to grow and take available space in row layout */
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 500px !important;
+  max-width: 600px !important;
+  width: 50vw !important;
   box-sizing: border-box;
 }
 
@@ -156,12 +163,12 @@
 }
 
 .stat-value {
-  color: #2196F3;
+  color: #2196f3;
   font-weight: bold;
 }
 
 .share-button {
-  background-color: #2196F3;
+  background-color: #2196f3;
   color: white;
   border: none;
   padding: 0.8rem 1.5rem;
@@ -172,5 +179,36 @@
 }
 
 .share-button:hover {
-  background-color: #1976D2;
+  background-color: #1976d2;
+}
+
+@media (max-width: 960px) {
+  .d-flex {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .crossword,
+  .grid {
+    max-width: 680px !important;
+    min-width: 360px !important;
+    width: 85vw !important;
+    
+    height: auto !important;
+  }
+
+  .clues {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .direction {
+    width: 100%;
+    height: auto;
+    max-height: 800px;
+  }
 }

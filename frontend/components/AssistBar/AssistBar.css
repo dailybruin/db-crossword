@@ -1,9 +1,12 @@
 .bar-wrapper {
     display: flex;
     flex-direction: row;
-    width: 1215px;
+    width: 100%;
+    max-width: 1215px;
     background-color: rgb(225, 225, 225);
     justify-content: space-between;
+    box-sizing: border-box;
+    padding: 8px 16px;
 }
 
 .assist-buttons {
@@ -29,5 +32,27 @@ button {
     font-size: 19px;
     padding: 5px 10px;
     cursor: pointer;
+}
+
+@media (max-width: 960px) {
+    .bar-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .assist-buttons {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .timer {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .timer span {
+        min-width: auto;
+    }
 }
 

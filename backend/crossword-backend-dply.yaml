@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crossword-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crossword-backend
+  template:
+    metadata:
+      labels:
+        app: crossword-backend
+    spec:
+      containers:
+        - name: backend
+          image: dailybruin/crossword:backend
+          ports:
+            - containerPort: 3000
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crossword-backend-svc
+spec:
+  selector:
+    app: crossword-backend
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP

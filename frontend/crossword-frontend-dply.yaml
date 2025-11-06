@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crossword-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crossword-frontend
+  template:
+    metadata:
+      labels:
+        app: crossword-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: dailybruin/crossword:frontend
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crossword-frontend-svc
+spec:
+  selector:
+    app: crossword-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP

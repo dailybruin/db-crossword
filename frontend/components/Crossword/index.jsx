@@ -50,7 +50,7 @@ export default function Crossword({ data }) {
   if (!data) return <div>Loading crossword…</div>;
 
   return (
-    <div>
+    <div className="in-home-content">
       {complete && showModal && (
         <div className="completion-modal">
           <div className="completion-content">
