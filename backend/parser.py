@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import json
+import sys
 
 def parseRow(row, jsonToAdd, rowIndex, acrossClues):
     word = ""
@@ -135,9 +136,15 @@ def parse_crossword(html_path):
 
 
 if __name__ == "__main__":
-    crossword_data = parse_crossword("./htmls/second.html")
-    saveToName = "crossword_data2.json"
-    with open(saveToName, "w", encoding="utf-8") as f:
+    if len(sys.argv) != 3:
+        print("Specify args [file name] [output file name]")
+        exit(1)
+
+    html_file_path = sys.argv[1]
+    dest_data_path = sys.argv[2]
+    
+    crossword_data = parse_crossword(html_file_path)
+    with open(dest_data_path, "w", encoding="utf-8") as f:
         json.dump(crossword_data, f, ensure_ascii=False, indent=2)
 
-    print(f"Saved crossword data to {saveToName}")
+    print(f"Saved crossword data to {dest_data_path}")

@@ -20,6 +20,13 @@ export default function AssistBar({
     return () => clearInterval(intervalId);
   }, [isRunning, setTime]);
 
+  useEffect(() => {
+    // Reset grid when new crossword data loads
+    if (data && crosswordRef.current) {
+      resetGrid();
+    }
+  }, [data, crosswordRef]);
+
   function revealGrid() {
     crosswordRef.current.fillAllAnswers();
   }

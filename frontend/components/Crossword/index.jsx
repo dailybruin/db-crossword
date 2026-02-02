@@ -3,14 +3,14 @@
  * https://github.com/JaredReisinger/react-crossword
  *
  * Copyright (c) 2019-2022, Jared Reisinger
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to use, 
- * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
- * Software, and to permit persons to whom the Software is furnished to do so, subject 
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so, subject
  * to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
@@ -23,7 +23,7 @@ import "./crossword.css";
 const formatTime = (seconds) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 };
 
 export default function Crossword({ data }) {
@@ -44,7 +44,22 @@ export default function Crossword({ data }) {
   };
 
   const handleCorrect = (direction, number, answer) => {
-    setCorrectClues(prev => prev + 1);
+    setCorrectClues((prev) => prev + 1);
+  };
+
+  const handleReInput = (row, col, char) => {
+    // Remove red highlight from the updated cell
+    const xPos = col * 10 + 0.125;
+    const yPos = row * 10 + 0.125;
+
+    const cell = document.querySelector(
+      `.clue-cell rect[x="${xPos}"][y="${yPos}"]`
+    )?.parentNode;
+
+    if (cell) {
+      const textElem = cell.querySelector("text:last-of-type");
+      if (textElem) textElem.classList.remove("incorrect-letter");
+    }
   };
 
   if (!data) return <div>Loading crossword…</div>;
@@ -54,7 +69,12 @@ export default function Crossword({ data }) {
       {complete && showModal && (
         <div className="completion-modal">
           <div className="completion-content">
-            <button className="close-button" onClick={() => setShowModal(false)}>×</button>
+            <button
+              className="close-button"
+              onClick={() => setShowModal(false)}
+            >
+              ×
+            </button>
             <h2>🎉 Congratulations! 🎉</h2>
             <p>You've completed the Daily Bruin Crossword!</p>
             <div className="completion-stats">
@@ -68,7 +88,9 @@ export default function Crossword({ data }) {
               </div>
               <div className="stat">
                 <span className="stat-label">Date:</span>
-                <span className="stat-value">{new Date().toLocaleDateString()}</span>
+                <span className="stat-value">
+                  {new Date().toLocaleDateString()}
+                </span>
               </div>
             </div>
           </div>
@@ -80,13 +102,15 @@ export default function Crossword({ data }) {
         time={time}
         setTime={setTime}
         isRunning={isRunning}
-        setIsRunning={setIsRunning} />
+        setIsRunning={setIsRunning}
+      />
       <div className="d-flex">
         <ReactCrossword
           ref={crosswordRef}
           data={data}
           onCorrect={handleCorrect}
           onCrosswordCorrect={handleCrosswordCorrect}
+          onCellChange={handleReInput}
         />
       </div>
     </div>
