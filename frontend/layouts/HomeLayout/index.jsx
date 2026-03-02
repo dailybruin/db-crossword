@@ -3,8 +3,6 @@ import { useLocation } from "react-router-dom";
 import Crossword from "../../components/Crossword";
 import "./HomeLayout.css";
 
-import test_data from "./mini4.json"
-
 export default function HomeLayout() {
   const [data, setData] = useState(null);
 
@@ -35,7 +33,7 @@ export default function HomeLayout() {
           <h1 id="title">
             {isMini ? "Mini " : ""}Crossword - {formatDate(data.date)}
           </h1>
-          
+
           {/* We check if the meta author exists before trying to render it */}
           {data.crossword?.meta?.author && (
              <p id="byline" style={{ marginTop: "-10px", marginBottom: "20px", fontSize: "1.1rem" }}>
@@ -45,12 +43,12 @@ export default function HomeLayout() {
           {/* ------------------------------- */}
 
           <div className="home-content">
-            {/* 5. The `key` prop is crucial here. 
-              It forces React to destroy and recreate the Crossword component 
-              when switching between Standard and Mini, ensuring the grid 
+            {/* 5. The `key` prop is crucial here.
+              It forces React to destroy and recreate the Crossword component
+              when switching between Standard and Mini, ensuring the grid
               resizes correctly.
             */}
-            <Crossword key={type} data={test_data} />
+            <Crossword key={type} data={data.crossword} />
           </div>
 
           <footer className="attribution">
