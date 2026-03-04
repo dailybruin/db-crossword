@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { getHighlightedWordCells } from "./helpers";
+import { Pause, Play, Eye, RotateCcw, CheckCircle, Lightbulb } from "lucide-react";
 import "./AssistBar.css";
 
 export default function AssistBar({
@@ -145,13 +146,16 @@ export default function AssistBar({
     <div className="bar-wrapper">
       <div className="timer">
         <span>{formatTime(time)}</span>
-        <button onClick={toggleTimer}>{isRunning ? "Pause" : "Resume"}</button>
+        <button onClick={toggleTimer}>
+          {isRunning ? <Pause size={16} /> : <Play size={16} />}
+          {isRunning ? " Pause" : " Resume"}
+        </button>
       </div>
       <div className="assist-buttons">
-        <button onClick={revealGrid}>Reveal Grid</button>
-        <button onClick={resetGrid}>Reset Grid</button>
-        <button onClick={checkGrid}>Check Answers</button>
-        <button onClick={revealWord}>Reveal Word</button>
+        <button onClick={revealGrid}><Eye size={16} /> Reveal Grid</button>
+        <button onClick={resetGrid}><RotateCcw size={16} /> Reset Grid</button>
+        <button onClick={checkGrid}><CheckCircle size={16} /> Check Answers</button>
+        <button onClick={revealWord}><Lightbulb size={16} /> Reveal Word</button>
       </div>
     </div>
   );
