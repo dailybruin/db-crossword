@@ -86,12 +86,7 @@ export default function Crossword({ data }) {
                 <span className="stat-label">Clues Solved:</span>
                 <span className="stat-value">{correctClues}</span>
               </div>
-              <div className="stat">
-                <span className="stat-label">Date:</span>
-                <span className="stat-value">
-                  {new Date().toLocaleDateString()}
-                </span>
-              </div>
+
             </div>
           </div>
         </div>

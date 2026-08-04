@@ -31,7 +31,7 @@ export default function HomeLayout() {
       {data ? (
         <>
           <h1 id="title">
-            {isMini ? "Mini " : ""}Crossword - {formatDate(data.date)}
+            {isMini ? "Mini " : ""}Crossword
           </h1>
 
           {/* We check if the meta author exists before trying to render it */}
