@@ -28,7 +28,7 @@ export default function HomeLayout() {
 
   return (
     <div className="home-wrapper">
-      {data ? (
+      {data && data.crossword ? (
         <>
           <h1 id="title">
             {isMini ? "Mini " : ""}Crossword
@@ -64,6 +64,8 @@ export default function HomeLayout() {
             </p>
           </footer>
         </>
+      ) : data && data.empty ? (
+        <h3>No {isMini ? "mini " : ""}crossword published yet.</h3>
       ) : (
         <h3>Loading {type} crossword...</h3>
       )}
