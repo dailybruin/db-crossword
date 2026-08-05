@@ -10,6 +10,22 @@ const { readpuz } = pkg;
 
 const BLOCK = ".";
 
+// Accept either a binary .puz file or an already-converted crossword .json file
+// (the standard puzzles historically exist only as scraped JSON, not .puz).
+// Returns the { meta, across, down } shape the frontend expects.
+export function toCrossword(buffer) {
+  // .puz files start with binary checksum bytes; a JSON file starts with "{".
+  const head = buffer.slice(0, 64).toString("utf8").trimStart();
+  if (head.startsWith("{")) {
+    const obj = JSON.parse(buffer.toString("utf8"));
+    if (!obj.across || !obj.down) {
+      throw new Error("JSON puzzle file is missing 'across'/'down'");
+    }
+    return { meta: obj.meta || {}, across: obj.across, down: obj.down };
+  }
+  return puzToCrossword(buffer);
+}
+
 export function puzToCrossword(buffer) {
   const p = readpuz(buffer);
   const { width, height, solution } = p;

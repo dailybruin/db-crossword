@@ -2,7 +2,7 @@ import express from 'express';
 import cors from "cors";
 import fetch from 'node-fetch';
 import { fetchRows, pickLatest, fetchPuz } from './sheet.js';
-import { puzToCrossword } from './puz.js';
+import { toCrossword } from './puz.js';
 
 const app = express();
 app.use(cors())
@@ -30,7 +30,7 @@ async function latestFromSheet(type) {
   const cached = cache[type];
   if (cached && cached.puzUrl === row.puz_url) return cached.payload;
 
-  const crossword = puzToCrossword(await fetchPuz(row.puz_url));
+  const crossword = toCrossword(await fetchPuz(row.puz_url));
   // The Sheet's author/title are editor-controlled and authoritative.
   if (row.author) crossword.meta.author = row.author;
   if (row.title) crossword.meta.title = row.title;
