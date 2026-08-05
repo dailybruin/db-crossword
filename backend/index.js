@@ -16,8 +16,11 @@ const SHEET_URL = process.env.CROSSWORD_SHEET_URL;
 
 // Per-type cache so we only download + convert a .puz when the latest row's
 // puz_url changes. Single backend replica, so an in-process cache is enough.
-// Shape: { [type]: { puzUrl, payload } }
-const cache = {};
+// We cache only the expensive part (download + convert) keyed on puz_url, and
+// re-apply the Sheet's author/title/date on every request so metadata edits
+// show up without a puz file change or a restart.
+const cache = {};    // { [type]: { puzUrl, crossword } }  -- cached conversion
+const lastGood = {}; // { [type]: payload }                -- for defensive fallback
 
 async function latestFromSheet(type) {
   const rows = await fetchRows(SHEET_URL);
@@ -26,17 +29,21 @@ async function latestFromSheet(type) {
   // No published puzzle of this type yet -> explicit empty state (not an error).
   if (!row) return { date: null, crossword: null, empty: true };
 
-  // Serve cached conversion if the latest puzzle hasn't changed.
-  const cached = cache[type];
-  if (cached && cached.puzUrl === row.puz_url) return cached.payload;
+  // Reuse the cached conversion only if the underlying file is the same.
+  let base = cache[type];
+  if (!base || base.puzUrl !== row.puz_url) {
+    base = { puzUrl: row.puz_url, crossword: toCrossword(await fetchPuz(row.puz_url)) };
+    cache[type] = base;
+  }
 
-  const crossword = toCrossword(await fetchPuz(row.puz_url));
-  // The Sheet's author/title are editor-controlled and authoritative.
+  // Apply the current Sheet metadata fresh each request (editor-controlled and
+  // authoritative), without mutating the cached conversion.
+  const crossword = { ...base.crossword, meta: { ...base.crossword.meta } };
   if (row.author) crossword.meta.author = row.author;
   if (row.title) crossword.meta.title = row.title;
 
   const payload = { date: row.date, crossword };
-  cache[type] = { puzUrl: row.puz_url, payload };
+  lastGood[type] = payload;
   return payload;
 }
 
@@ -63,7 +70,7 @@ app.get("/api/crossword/latest", async (req, res) => {
     console.error(err);
     // Defensive: if a bad Sheet edit breaks the latest row, keep serving the
     // last good puzzle instead of taking the site down.
-    if (SHEET_URL && cache[type]) return res.json(cache[type].payload);
+    if (SHEET_URL && lastGood[type]) return res.json(lastGood[type]);
     res.status(500).send("Server error fetching crossword");
   }
 });
