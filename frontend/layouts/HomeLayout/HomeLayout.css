@@ -1,58 +1,115 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  height: auto; /* allow body to grow naturally */
-  min-height: 100%; /* ensures full coverage if needed */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.home-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    min-height: 100vh; /* ensure footer can stick to bottom */
-    box-sizing: border-box;
+/* --------------------------------------------------------------- masthead */
+
+.masthead {
+  margin-bottom: 20px;
 }
 
-#title {
-    font-family: "'DM Serif Text', serif"
+.masthead__eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bruin-blue);
 }
 
-.home-content {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 24px;
-    width: 100%;
-    max-width: 1250px;
-    box-sizing: border-box;
-    padding: 0 16px;
+.masthead__title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 7vw, 68px);
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.015em;
+  line-height: 0.98;
+  text-transform: uppercase;
+  margin: 6px 0 0;
 }
 
-.attribution {
-    max-width: 1250px;
-    width: 100%;
-    padding: 12px 16px;
-    box-sizing: border-box;
-    text-align: center;
-    background: transparent;
+.masthead__credits {
+  margin-top: 8px;
+  font-size: 15.5px;
+  font-style: italic;
+  color: var(--muted);
 }
 
+/* ---------------------------------------------------------------- notices */
+
+.notice {
+  margin-top: 26px;
+  padding: 34px 26px;
+  border: 1.5px solid var(--ink);
+  border-top: 8px solid var(--bruin-gold);
+  background: var(--card);
+  max-width: 460px;
+}
+
+.notice--quiet {
+  margin-top: 34px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.notice__head {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 800;
+  font-stretch: 118%;
+  margin-bottom: 8px;
+}
+
+.notice__retry {
+  margin-top: 20px;
+  padding: 11px 20px;
+  border: 1.5px solid var(--ink);
+  background: var(--card);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.notice__retry:hover {
+  background: var(--sky);
+}
+
+/* -------------------------------------------------------------- colophon */
+
+.colophon {
+  margin-top: auto;
+  padding-top: 40px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 62ch;
+}
+
+/* On a phone the masthead is competing with the puzzle for the first screen.
+   The puzzle wins. */
 @media (max-width: 960px) {
-    .home-content {
-        flex-direction: column;
-        align-items: center;
-        padding: 0 12px;
-    }
+  .masthead {
+    margin-bottom: 12px;
+  }
 
-    .attribution {
-        max-width: 100%;
-        text-align: center;
-        padding: 10px 12px;
-    }
+  .masthead__title {
+    font-size: 34px;
+    margin-top: 3px;
+  }
 
-    #title {
-        font-size: 32px;
-    }
+  .masthead__eyebrow {
+    font-size: 10px;
+  }
+
+  .masthead__credits {
+    margin-top: 4px;
+    font-size: 14px;
+  }
 }
