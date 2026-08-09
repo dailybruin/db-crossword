@@ -3,8 +3,6 @@ import { useLocation } from "react-router-dom";
 import Crossword from "../../components/Crossword";
 import "./HomeLayout.css";
 
-const GENERIC_TITLES = new Set(["crossword", "mini crossword"]);
-
 export default function HomeLayout() {
   const location = useLocation();
   const isMini = location.pathname === "/mini";
@@ -42,17 +40,10 @@ export default function HomeLayout() {
     return () => controller.abort();
   }, [BACKEND_DOMAIN, type, attempt]);
 
-  const meta = state.puzzle?.crossword?.meta ?? {};
-  const puzzleTitle =
-    meta.title && !GENERIC_TITLES.has(meta.title.trim().toLowerCase())
-      ? meta.title.trim()
-      : null;
-
-  const credits = [
-    puzzleTitle,
-    meta.author ? `by ${meta.author}` : null,
-    formatDate(state.puzzle?.date),
-  ].filter(Boolean);
+  // Only the author is dependable. The Sheet's `title` falls back to whatever
+  // the .puz file was named ("Crossword 2"), and `date` is the editor's
+  // publish-order key rather than a date worth printing.
+  const author = state.puzzle?.crossword?.meta?.author;
 
   return (
     <div className="page">
@@ -61,8 +52,8 @@ export default function HomeLayout() {
         <h1 className="masthead__title">
           {isMini ? "Mini crossword" : "Crossword"}
         </h1>
-        {state.status === "ready" && credits.length > 0 && (
-          <p className="masthead__credits">{credits.join(" · ")}</p>
+        {state.status === "ready" && author && (
+          <p className="masthead__credits">by {author}</p>
         )}
       </header>
 
@@ -110,14 +101,3 @@ export default function HomeLayout() {
   );
 }
 
-/** The API returns ISO dates (`2026-08-04`). */
-function formatDate(iso) {
-  if (!iso) return null;
-  const [year, month, day] = String(iso).split("-").map(Number);
-  if (!year || !month || !day) return null;
-  return new Date(year, month - 1, day).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}

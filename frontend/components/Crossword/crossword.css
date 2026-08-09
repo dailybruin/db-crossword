@@ -1,13 +1,13 @@
 .puzzle {
-  width: 100%;
   --board-max: 640px;
   --clue-max: 470px;
 }
 
-/* A 5×5 blown up to full size reads as a toy rather than a quick puzzle. */
+/* A mini has few clues but they're no shorter, so it needs a smaller grid and
+   nearly the same room to read. */
 .puzzle[data-size="small"] {
-  --board-max: 420px;
-  --clue-max: 360px;
+  --board-max: 460px;
+  --clue-max: 440px;
 }
 
 /* Between the two-column breakpoint and a roomy desktop there isn't width for

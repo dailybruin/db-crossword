@@ -4,6 +4,18 @@
   min-height: 100vh;
 }
 
+/* Shrink the page column to the width the board actually needs and centre it,
+   so a narrow puzzle doesn't leave a one-sided gutter. The masthead, the
+   toolbar rules and the grid still share a left edge — they now share a right
+   edge too. */
+@media (min-width: 961px) {
+  .page {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+}
+
 /* --------------------------------------------------------------- masthead */
 
 .masthead {
