@@ -282,11 +282,6 @@
     }
   }
 
-  /* Edge to edge — on a 17×17 puzzle every pixel of cell size counts. */
-  .board__grid {
-    margin-inline: calc(var(--page-pad) * -1);
-  }
-
   .puzzle-grid {
     width: min(100%, calc(var(--grid-h) * var(--aspect, 1)));
     margin: 0 auto;
