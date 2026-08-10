@@ -2,7 +2,7 @@
   width: 100%;
   max-width: 1220px;
   margin: 0 auto;
-  padding: 40px var(--page-pad) 56px;
+  padding: 36px var(--page-pad) 28px;
 }
 
 @media (max-width: 960px) {

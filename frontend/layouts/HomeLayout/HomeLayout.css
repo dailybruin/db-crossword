@@ -1,7 +1,10 @@
+/* No min-height here: the page is embedded in a fixed-height iframe, and
+   #root's padding sits outside this element, so a 100vh floor would make the
+   document taller than the viewport by exactly that padding and force a
+   scrollbar no matter how short the puzzle is. */
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
 /* Shrink the page column to the width the board actually needs and centre it,
@@ -95,13 +98,14 @@
 
 /* -------------------------------------------------------------- colophon */
 
+/* Sits directly under the puzzle rather than being pushed to the bottom of the
+   viewport, which left a large gap inside the embed. */
 .colophon {
-  margin-top: auto;
-  padding-top: 40px;
-  font-size: 12.5px;
-  line-height: 1.5;
+  padding-top: 26px;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--muted);
-  max-width: 62ch;
+  max-width: 74ch;
 }
 
 /* On a phone the masthead is competing with the puzzle for the first screen.
