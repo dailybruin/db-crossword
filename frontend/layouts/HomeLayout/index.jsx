@@ -40,10 +40,13 @@ export default function HomeLayout() {
     return () => controller.abort();
   }, [BACKEND_DOMAIN, type, attempt]);
 
-  // Only the author is dependable. The Sheet's `title` falls back to whatever
-  // the .puz file was named ("Crossword 2"), and `date` is the editor's
-  // publish-order key rather than a date worth printing.
-  const author = state.puzzle?.crossword?.meta?.author;
+  // The Sheet's `title` and `author` columns drive the byline. The backend
+  // clears the title when the Sheet cell is blank (so we never show the .puz
+  // filename), and either part may be missing — render only what's present.
+  // `date` stays hidden: it's the editor's publish-order key, not a real date.
+  const meta = state.puzzle?.crossword?.meta;
+  const title = meta?.title;
+  const author = meta?.author;
 
   return (
     <div className="page">
@@ -52,8 +55,12 @@ export default function HomeLayout() {
         <h1 className="masthead__title">
           {isMini ? "Mini crossword" : "Crossword"}
         </h1>
-        {state.status === "ready" && author && (
-          <p className="masthead__credits">by {author}</p>
+        {state.status === "ready" && (title || author) && (
+          <p className="masthead__credits">
+            {title}
+            {title && author && " · "}
+            {author && `by ${author}`}
+          </p>
         )}
       </header>
 

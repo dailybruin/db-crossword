@@ -40,7 +40,9 @@ async function latestFromSheet(type) {
   // authoritative), without mutating the cached conversion.
   const crossword = { ...base.crossword, meta: { ...base.crossword.meta } };
   if (row.author) crossword.meta.author = row.author;
-  if (row.title) crossword.meta.title = row.title;
+  // The Sheet is authoritative for the displayed title: if the cell is blank,
+  // show no title rather than leaking the .puz's internal name (often a filename).
+  crossword.meta.title = row.title || "";
 
   const payload = { date: row.date, crossword };
   lastGood[type] = payload;
