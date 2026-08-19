@@ -51,10 +51,11 @@ export async function fetchRows(csvUrl) {
   });
 }
 
-// Pick the newest active row of the requested type. Dates are YYYY-MM-DD so a
-// lexicographic string compare sorts them correctly. Defensive: skip rows
-// missing the fields we need.
-export function pickLatest(rows, type) {
+// Active, playable rows of a type (must have a date and a file), newest date
+// first. Dates are YYYY-MM-DD so a lexicographic compare sorts them correctly;
+// the sort is stable, so equal dates keep sheet order and the higher row wins
+// ties. Defensive: skip rows missing the fields we need.
+export function activePuzzles(rows, type) {
   const candidates = rows.filter(
     (r) =>
       r.type?.toLowerCase() === type.toLowerCase() &&
@@ -62,9 +63,33 @@ export function pickLatest(rows, type) {
       r.date &&
       r.puz_url
   );
-  if (candidates.length === 0) return null;
   candidates.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-  return candidates[0];
+  return candidates;
+}
+
+// The single newest active puzzle of a type (what the /latest endpoint serves).
+export function pickLatest(rows, type) {
+  return activePuzzles(rows, type)[0] || null;
+}
+
+// The active row for a specific date. If a date somehow has two active rows,
+// the newest-wins tie rule above decides — same row listPuzzles shows.
+export function pickByDate(rows, type, date) {
+  return activePuzzles(rows, type).find((r) => r.date === date) || null;
+}
+
+// Lightweight catalog for the archive + calendar: date / title / author only,
+// one entry per date, newest first. No .puz downloads happen here, so this
+// stays cheap even with hundreds of puzzles.
+export function listPuzzles(rows, type) {
+  const seen = new Set();
+  const out = [];
+  for (const r of activePuzzles(rows, type)) {
+    if (seen.has(r.date)) continue; // one entry per date (see pickByDate)
+    seen.add(r.date);
+    out.push({ date: r.date, title: r.title || "", author: r.author || "" });
+  }
+  return out;
 }
 
 // Turn any Google Drive share link (or bare id / uc URL) into a direct-download
