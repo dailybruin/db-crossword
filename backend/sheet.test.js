@@ -2,7 +2,7 @@
 // (node --test). No framework needed — Node's built-in test runner.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { publishInstant, activePuzzles } from "./sheet.js";
+import { publishInstant, activePuzzles, rowsFromCsv } from "./sheet.js";
 
 // LA is UTC-7 in summer (PDT) and UTC-8 in winter (PST). The offset must come
 // from the date itself, not a constant, so these two must differ by an hour.
@@ -42,6 +42,20 @@ test("publishInstant: forgiving parse", () => {
   assert.equal(publishInstant("2026-08-06", "08:00:00"), Date.UTC(2026, 7, 6, 15, 0));
   assert.equal(publishInstant("2026-08-06", "nonsense"), Date.UTC(2026, 7, 6, 7, 0));
   assert.ok(Number.isNaN(publishInstant("not-a-date", "08:00")));
+});
+
+// The run-date column may be named publish_date (current) or date (older sheet);
+// both normalize to `date` so downstream code and the API shape don't change.
+test("rowsFromCsv: publish_date and legacy date both map to date", () => {
+  const withPublishDate = rowsFromCsv(
+    "type,publish_date,publish_time,puz_url,active\nmini,2026-08-06,08:00,u6,TRUE"
+  );
+  assert.equal(withPublishDate[0].date, "2026-08-06");
+
+  const legacy = rowsFromCsv(
+    "type,date,publish_time,puz_url,active\nmini,2026-08-06,08:00,u6,TRUE"
+  );
+  assert.equal(legacy[0].date, "2026-08-06");
 });
 
 const rows = [

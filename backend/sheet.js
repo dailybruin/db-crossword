@@ -37,18 +37,28 @@ export function parseCsv(text) {
   return rows;
 }
 
-// Fetch the published CSV and turn it into row objects keyed by header name.
-export async function fetchRows(csvUrl) {
-  const res = await fetch(csvUrl);
-  if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
-  const grid = parseCsv(await res.text());
+// Parse published CSV text into row objects keyed by header name. Split out from
+// fetchRows so it can be tested without a network call. The editor-facing column
+// for a puzzle's run date is `publish_date` (it pairs with publish_time); we
+// normalize it to `date` here so the rest of the code and the API response shape
+// stay unchanged, and a sheet still using the older `date` header keeps working.
+export function rowsFromCsv(text) {
+  const grid = parseCsv(text);
   if (grid.length === 0) return [];
   const headers = grid[0].map((h) => h.trim().toLowerCase());
   return grid.slice(1).map((cols) => {
     const obj = {};
     headers.forEach((h, idx) => { obj[h] = (cols[idx] ?? "").trim(); });
+    if (obj.publish_date) obj.date = obj.publish_date;
     return obj;
   });
+}
+
+// Fetch the published CSV and turn it into row objects keyed by header name.
+export async function fetchRows(csvUrl) {
+  const res = await fetch(csvUrl);
+  if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
+  return rowsFromCsv(await res.text());
 }
 
 // Editors set publish times in this zone (LA time), so "08:00" means 8am
