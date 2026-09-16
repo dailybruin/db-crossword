@@ -1,0 +1,7 @@
+node_modules
+dist
+.git
+# Local dev env override — must NOT be baked into the production build,
+# or it would point the built site at localhost.
+.env.local
+*.local

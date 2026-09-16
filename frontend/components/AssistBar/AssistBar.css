@@ -1,58 +1,115 @@
-.bar-wrapper {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    max-width: 1215px;
-    background-color: rgb(225, 225, 225);
-    justify-content: space-between;
-    box-sizing: border-box;
-    padding: 8px 16px;
+.assist {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 9px 0;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
 }
 
-.assist-buttons {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
+.assist__timer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.timer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.assist__time {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  font-stretch: 125%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  min-width: 2.6em;
 }
 
-.timer span {
-    font-size: 20px;
-    font-family: monospace;
-    min-width: 60px;
+.assist__toggle,
+.tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 11px;
+  border: 1.5px solid var(--rule);
+  background: var(--card);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: 108%;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
-button {
-    font-size: 19px;
-    padding: 5px 10px;
-    cursor: pointer;
+.assist__toggle:hover,
+.tool:hover {
+  border-color: var(--ink);
+  background: var(--sky);
+}
+
+.assist__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Wide enough for its longest result, so reporting one doesn't shove the row. */
+.tool--check {
+  min-width: 128px;
+  justify-content: center;
+}
+
+/* Armed and waiting for a second tap before it throws anything away. */
+.tool--armed {
+  border-color: var(--ink);
+  background: var(--bruin-gold);
 }
 
 @media (max-width: 960px) {
-    .bar-wrapper {
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-    }
+  .assist {
+    justify-content: center;
+    gap: 10px;
+    padding: 8px 0 10px;
+  }
 
-    .assist-buttons {
-        justify-content: center;
-        width: 100%;
-    }
+  .assist__timer {
+    width: 100%;
+    justify-content: center;
+  }
 
-    .timer {
-        justify-content: center;
-        width: 100%;
-    }
+  /* Four equal targets on one row: the labels stack under their icons rather
+     than the row wrapping and pushing the grid off the first screen. */
+  .assist__tools {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: stretch;
+    width: 100%;
+    gap: 6px;
+  }
 
-    .timer span {
-        min-width: auto;
-    }
+  .assist__time {
+    font-size: 28px;
+  }
+
+  /* Icons pinned to the top so they line up across the row, whether or not a
+     label needs a second line. */
+  .tool {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 10px 3px 8px;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    line-height: 1.25;
+    text-align: center;
+    white-space: normal;
+    gap: 4px;
+  }
+
+  .tool--check {
+    min-width: 0;
+  }
 }
-

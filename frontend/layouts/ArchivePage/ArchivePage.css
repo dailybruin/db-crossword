@@ -1,0 +1,202 @@
+.archpage {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.archpage__top {
+  margin-bottom: 10px;
+}
+
+.archpage__back {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  font-stretch: 110%;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bruin-blue);
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
+.archpage__back:hover {
+  text-decoration: underline;
+}
+
+.archpage__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 9px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.archpage__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 122%;
+  font-size: clamp(24px, 4.5vw, 34px);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.archpage__title em {
+  font-style: normal;
+  font-stretch: 112%;
+  font-size: 0.5em;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.archpage__count {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: 108%;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------- the list */
+
+.issues {
+  margin-top: 4px;
+}
+
+.issue {
+  display: grid;
+  grid-template-columns: 108px 1fr auto;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 6px;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.1s;
+}
+
+.issue:hover {
+  background: var(--card);
+}
+
+.issue__date {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.issue__date b {
+  font-weight: 800;
+  font-stretch: 120%;
+  font-size: 23px;
+  letter-spacing: -0.01em;
+}
+
+.issue__date small {
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-stretch: 108%;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.issue__title {
+  font-family: var(--font-text);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.issue__by {
+  display: block;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 14.5px;
+  margin-top: 2px;
+}
+
+.issue__go {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  font-stretch: 110%;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bruin-blue);
+  opacity: 0;
+  transition: opacity 0.1s;
+  white-space: nowrap;
+}
+
+.issue:hover .issue__go,
+.issue:focus-visible .issue__go {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------ pagination */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.pager__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border: 1.5px solid var(--ink);
+  background: var(--card);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  font-stretch: 110%;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.pager__btn:hover:not(:disabled) {
+  background: var(--sky);
+}
+
+.pager__btn:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.pager__at {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: 108%;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 560px) {
+  .issue {
+    grid-template-columns: 84px 1fr;
+    gap: 14px;
+  }
+
+  .issue__go {
+    display: none;
+  }
+}

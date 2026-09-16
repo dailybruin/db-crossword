@@ -1,58 +1,189 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  height: auto; /* allow body to grow naturally */
-  min-height: 100%; /* ensures full coverage if needed */
+/* No min-height here: the page is embedded in a fixed-height iframe, and
+   #root's padding sits outside this element, so a 100vh floor would make the
+   document taller than the viewport by exactly that padding and force a
+   scrollbar no matter how short the puzzle is. */
+.page {
+  display: flex;
+  flex-direction: column;
 }
 
-.home-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    min-height: 100vh; /* ensure footer can stick to bottom */
-    box-sizing: border-box;
+/* Shrink the page column to the width the board actually needs and centre it,
+   so a narrow puzzle doesn't leave a one-sided gutter. The masthead, the
+   toolbar rules and the grid still share a left edge — they now share a right
+   edge too. */
+@media (min-width: 961px) {
+  .page {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
 }
 
-#title {
-    font-family: "'DM Serif Text', serif"
+/* --------------------------------------------------------------- masthead */
+
+.masthead {
+  margin-bottom: 20px;
 }
 
-.home-content {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 24px;
-    width: 100%;
-    max-width: 1250px;
-    box-sizing: border-box;
-    padding: 0 16px;
+/* Title block on the left, the Archive control on the right. They share the
+   board's right edge, just like the toolbar rules below. */
+.masthead__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.attribution {
-    max-width: 1250px;
-    width: 100%;
-    padding: 12px 16px;
-    box-sizing: border-box;
-    text-align: center;
-    background: transparent;
+.masthead__id {
+  min-width: 0;
 }
 
+/* Shown only when viewing a past puzzle. */
+.masthead__past {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.masthead__pasttag {
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--bruin-gold);
+  padding: 3px 8px;
+}
+
+.masthead__pastback {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  font-stretch: 110%;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bruin-blue);
+  text-decoration: none;
+}
+
+.masthead__pastback:hover {
+  text-decoration: underline;
+}
+
+.masthead__eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bruin-blue);
+}
+
+.masthead__title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 7vw, 68px);
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.015em;
+  line-height: 0.98;
+  text-transform: uppercase;
+  margin: 6px 0 0;
+}
+
+.masthead__credits {
+  margin-top: 8px;
+  font-size: 15.5px;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- notices */
+
+.notice {
+  margin-top: 26px;
+  padding: 34px 26px;
+  border: 1.5px solid var(--ink);
+  border-top: 8px solid var(--bruin-gold);
+  background: var(--card);
+  max-width: 460px;
+}
+
+.notice--quiet {
+  margin-top: 34px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.notice__head {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 800;
+  font-stretch: 118%;
+  margin-bottom: 8px;
+}
+
+.notice__retry {
+  margin-top: 20px;
+  padding: 11px 20px;
+  border: 1.5px solid var(--ink);
+  background: var(--card);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.notice__retry:hover {
+  background: var(--sky);
+}
+
+/* Same box as the retry button, but it's a link (to the archive). */
+.notice__link {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+/* -------------------------------------------------------------- colophon */
+
+/* Sits directly under the puzzle rather than being pushed to the bottom of the
+   viewport, which left a large gap inside the embed. */
+.colophon {
+  padding-top: 26px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+  max-width: 74ch;
+}
+
+/* On a phone the masthead is competing with the puzzle for the first screen.
+   The puzzle wins. */
 @media (max-width: 960px) {
-    .home-content {
-        flex-direction: column;
-        align-items: center;
-        padding: 0 12px;
-    }
+  .masthead {
+    margin-bottom: 12px;
+  }
 
-    .attribution {
-        max-width: 100%;
-        text-align: center;
-        padding: 10px 12px;
-    }
+  .masthead__title {
+    font-size: 34px;
+    margin-top: 3px;
+  }
 
-    #title {
-        font-size: 32px;
-    }
+  .masthead__eyebrow {
+    font-size: 10px;
+  }
+
+  .masthead__credits {
+    margin-top: 4px;
+    font-size: 14px;
+  }
 }

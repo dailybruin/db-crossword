@@ -18,6 +18,14 @@ spec:
           ports:
             - containerPort: 3000
           imagePullPolicy: Always
+          env:
+            # Google Sheet (published as CSV) that lists puzzles. Setting this is
+            # the WordPress -> Sheets cutover switch: with it set the backend
+            # reads from the Sheet; unset, it falls back to the old WP source.
+            # Not a secret. To point at a different sheet later, edit this value
+            # and re-run deploy.sh.
+            - name: CROSSWORD_SHEET_URL
+              value: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSxkyB28Hg4bzKh915evgX3r1hKf49qkSz9Zbf0sctXxeUlvIbmT8xGqBRMKbbk9Gthl7hkpKBOv5xt/pub?output=csv"
 ---
 apiVersion: v1
 kind: Service

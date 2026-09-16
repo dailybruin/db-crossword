@@ -1,162 +1,124 @@
-import { useEffect } from "react";
-import { getHighlightedWordCells } from "./helpers";
-import { Pause, Play, Eye, RotateCcw, CheckCircle, Lightbulb } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Pause,
+  Play,
+  Eraser,
+  CheckCircle,
+  Lightbulb,
+  Grid3x3,
+} from "lucide-react";
+import { formatTime } from "../Crossword/format";
 import "./AssistBar.css";
 
 export default function AssistBar({
-  data,
-  crosswordRef,
   time,
-  setTime,
   isRunning,
-  setIsRunning,
+  onToggleTimer,
+  onCheck,
+  onRevealWord,
+  onRevealAll,
+  onClear,
 }) {
-  useEffect(() => {
-    let intervalId;
-    if (isRunning) {
-      intervalId = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
-      }, 1000);
-    }
-    return () => clearInterval(intervalId);
-  }, [isRunning, setTime]);
-
-  useEffect(() => {
-    // Reset grid when new crossword data loads
-    if (data && crosswordRef.current) {
-      resetGrid();
-    }
-  }, [data, crosswordRef]);
-
-  function revealGrid() {
-    crosswordRef.current.fillAllAnswers();
-  }
-
-  function resetGrid() {
-    crosswordRef.current.reset();
-    setTime(0);
-  }
-
-  function buildSolutionGrid(data) {
-    // Determine grid size
-    let maxRow = 0;
-    let maxCol = 0;
-
-    // Helper to update size
-    const updateSize = (isAcross, { row, col, answer }) => {
-      if (isAcross) {
-        maxCol = Math.max(maxCol, col + answer.length);
-      } else {
-        maxRow = Math.max(maxRow, row + answer.length);
-      }
-    };
-
-    // Scan all across entries
-    Object.values(data.across).forEach((entry) => {
-      updateSize(true, entry);
-    });
-
-    // Scan all down entries
-    Object.values(data.down).forEach((entry) => {
-      updateSize(false, entry);
-    });
-
-    // Create blank grid
-    const grid = Array.from({ length: maxRow }, () => Array(maxCol).fill(null));
-
-    // Fill across answers
-    Object.values(data.across).forEach(({ row, col, answer }) => {
-      answer.split("").forEach((ch, i) => {
-        grid[row][col + i] = ch.toUpperCase();
-      });
-    });
-
-    // Fill down answers
-    Object.values(data.down).forEach(({ row, col, answer }) => {
-      answer.split("").forEach((ch, i) => {
-        grid[row + i][col] = ch.toUpperCase();
-      });
-    });
-
-    return grid;
-  }
-
-  function checkGrid() {
-    if (!crosswordRef.current) return;
-    if (!data) return;
-
-    const solutionGrid = buildSolutionGrid(data);
-
-    // Select the text nodes that contain letters in the crossword
-    const cells = document.querySelectorAll(".clue-cell text:last-of-type");
-
-    cells.forEach((cell) => {
-      const guessed = cell.textContent.trim().toUpperCase();
-
-      // Remove old marking
-      cell.classList.remove("incorrect-letter");
-
-      const rect = cell.closest(".clue-cell").querySelector("rect");
-      if (!rect) return;
-
-      // Convert pixel-based SVG position → grid coordinates
-      // Assumes x=_.125, y=_.125
-      const col = (parseFloat(rect.getAttribute("x")) - 0.125) / 10;
-      const row = (parseFloat(rect.getAttribute("y")) - 0.125) / 10;
-
-      const correct = solutionGrid[row][col];
-
-      if (guessed && correct && guessed !== correct) {
-        cell.classList.add("incorrect-letter");
-      }
-    });
-  }
-
-  function revealWord() {
-    const solutionGrid = buildSolutionGrid(data);
-    const result = getHighlightedWordCells(); // ← new helper
-
-    if (!result) return;
-    const { cells } = result;
-
-    cells.forEach(({ row, col, rect }) => {
-      const letter = solutionGrid[row][col];
-      if (!letter) return;
-
-      const cellGroup = rect.closest(".clue-cell");
-      const textElem = cellGroup.querySelector("text:last-of-type");
-      if (textElem) {
-        textElem.textContent = letter;
-        textElem.classList.remove("incorrect-letter");
-      }
-    });
-  }
-
-  function toggleTimer() {
-    setIsRunning(!isRunning);
-  }
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
-
   return (
-    <div className="bar-wrapper">
-      <div className="timer">
-        <span>{formatTime(time)}</span>
-        <button onClick={toggleTimer}>
-          {isRunning ? <Pause size={16} /> : <Play size={16} />}
-          {isRunning ? " Pause" : " Resume"}
+    <div className="assist">
+      <div className="assist__timer">
+        <span className="assist__time">{formatTime(time)}</span>
+        <button
+          type="button"
+          className="assist__toggle"
+          onClick={onToggleTimer}
+          aria-label={isRunning ? "Pause the timer" : "Resume the timer"}
+        >
+          {isRunning ? (
+            <Pause size={14} aria-hidden="true" />
+          ) : (
+            <Play size={14} aria-hidden="true" />
+          )}
+          <span>{isRunning ? "Pause" : "Resume"}</span>
         </button>
       </div>
-      <div className="assist-buttons">
-        <button onClick={revealGrid}><Eye size={16} /> Reveal Grid</button>
-        <button onClick={resetGrid}><RotateCcw size={16} /> Reset Grid</button>
-        <button onClick={checkGrid}><CheckCircle size={16} /> Check Answers</button>
-        <button onClick={revealWord}><Lightbulb size={16} /> Reveal Word</button>
+
+      <div className="assist__tools">
+        <CheckTool onCheck={onCheck} />
+        <button type="button" className="tool" onClick={onRevealWord}>
+          <Lightbulb size={15} aria-hidden="true" />
+          <span>Reveal word</span>
+        </button>
+        <ConfirmTool
+          icon={<Grid3x3 size={15} aria-hidden="true" />}
+          label="Reveal all"
+          confirmLabel="Reveal all?"
+          onConfirm={onRevealAll}
+        />
+        <ConfirmTool
+          icon={<Eraser size={15} aria-hidden="true" />}
+          label="Clear grid"
+          confirmLabel="Clear grid?"
+          onConfirm={onClear}
+        />
       </div>
     </div>
+  );
+}
+
+/**
+ * Marking wrong letters is invisible when there are none, so the button says
+ * what it found.
+ */
+function CheckTool({ onCheck }) {
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    if (result === null) return undefined;
+    const id = setTimeout(() => setResult(null), 2500);
+    return () => clearTimeout(id);
+  }, [result]);
+
+  let label = "Check";
+  if (result === 0) label = "No mistakes";
+  else if (result > 0) label = `${result} wrong`;
+
+  return (
+    <button
+      type="button"
+      className="tool tool--check"
+      onClick={() => setResult(onCheck())}
+      aria-live="polite"
+    >
+      <CheckCircle size={15} aria-hidden="true" />
+      <span>{label}</span>
+    </button>
+  );
+}
+
+/**
+ * A tool that throws away work, so it asks once. A stray tap is easy on a
+ * phone; getting your grid back after one isn't.
+ */
+function ConfirmTool({ icon, label, confirmLabel, onConfirm }) {
+  const [armed, setArmed] = useState(false);
+
+  useEffect(() => {
+    if (!armed) return undefined;
+    const id = setTimeout(() => setArmed(false), 4000);
+    return () => clearTimeout(id);
+  }, [armed]);
+
+  return (
+    <button
+      type="button"
+      className={armed ? "tool tool--armed" : "tool"}
+      onClick={() => {
+        if (armed) {
+          setArmed(false);
+          onConfirm();
+        } else {
+          setArmed(true);
+        }
+      }}
+    >
+      {icon}
+      <span>{armed ? confirmLabel : label}</span>
+    </button>
   );
 }
