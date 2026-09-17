@@ -36,11 +36,16 @@ When someone opens the site, the backend reads the Sheet, finds the puzzle that 
 showing, downloads its file from Drive, turns it into the format the grid understands, and
 sends it to the frontend.
 
-```
-Editor adds a row in the Sheet  ┐
-Editor drops the file in Drive  ┘→  Backend reads the Sheet, grabs the file,
-                                    converts it, and serves it
-                                        →  Frontend renders the puzzle
+```mermaid
+flowchart LR
+    E1["📝 Editor adds<br/>a row in the Sheet"]
+    E2["📄 Editor drops the<br/>puzzle file in Drive"]
+    B["⚙️ Backend<br/>reads the Sheet, grabs<br/>the file, converts it"]
+    F["🧩 Frontend<br/>renders the puzzle"]
+
+    E1 --> B
+    E2 --> B
+    B --> F
 ```
 
 A few things this setup gives us:
