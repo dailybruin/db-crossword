@@ -33,37 +33,44 @@ Editors never touch code. The workflow is:
    **right-click → Share → Copy link**.
 3. **Add a row** to the Google Sheet with these columns:
 
-   | Column    | What to put                                             |
-   |-----------|---------------------------------------------------------|
-   | `type`    | `mini` or `standard`                                    |
-   | `date`    | Publish date in `YYYY-MM-DD` (this controls "latest")   |
-   | `author`  | Byline shown on the site                                |
-   | `title`   | Puzzle title                                            |
-   | `puz_url` | The Drive share link from step 2                        |
-   | `active`  | `TRUE` to make it live-eligible; `FALSE` to hide it     |
+   | Column         | What to put                                                                                   |
+   |----------------|-----------------------------------------------------------------------------------------------|
+   | `type`         | `mini` or `standard`                                                                          |
+   | `publish_date` | The date the puzzle runs, in `YYYY-MM-DD`                                                     |
+   | `publish_time` | *(optional)* Time it should go live that day, `HH:MM` in LA time. Blank = start of the day.   |
+   | `author`       | Byline shown on the site                                                                      |
+   | `title`        | Puzzle title                                                                                  |
+   | `puz_url`      | The Drive share link from step 2                                                              |
+   | `active`       | `TRUE` to make it live-eligible; `FALSE` to hide it                                           |
 
 That's it — the site picks it up within a few minutes.
 
 ### Which puzzle shows?
 
-For each `type`, the site shows the row with the **newest `date`** among rows
-where `active = TRUE`. **Row position in the Sheet does not matter** — the `date`
-is the control.
+For each `type`, the site shows the row with the **newest `publish_date`** among
+rows that are both `active = TRUE` **and** whose publish time has already passed.
+**Row position in the Sheet does not matter** — the date (and time) is the control.
 
-- **Publish / replace:** add a new row with a newer `date`.
+- **Publish / replace:** add a new row with a newer `publish_date`.
+- **Schedule ahead:** set a future `publish_date`/`publish_time`; the puzzle stays
+  hidden until then, and the previous one keeps showing in the meantime.
 - **Un-publish / take down:** set that row's `active` to `FALSE` (the previous
   active puzzle becomes live again).
-- **Fix a live puzzle:** upload a corrected `.puz` and add a new row with a newer
+- **Fix a live puzzle:** upload a corrected file and add a new row with a newer
   date (cleanest — see "Gotchas").
 
 ### Things editors should know
 
-- **`date` means "which is newest," not "publish on this day."** A future date
-  goes live **immediately**, because it's the newest. Use the real date.
+- **Scheduling is automatic.** A puzzle goes live once its `publish_date` (and
+  `publish_time`, if set) arrive — nobody has to flip anything on the day. A blank
+  `publish_time` means the start of that day. Use the real run date.
+- **`publish_time` is 24-hour LA time** (e.g. `08:00`, `17:30`). Its column is
+  formatted as plain text so Google doesn't rewrite the value — keep it that way.
 - **Changes take a few minutes**, not seconds (Google caches the Sheet export,
-  and the backend caches the current puzzle).
-- **Keep one active row per `type` per `date`.** If two rows tie on the newest
-  date, the result is ambiguous — bump the date or set the old one to `FALSE`.
+  and the backend caches the current puzzle) — so a puzzle appears within a few
+  minutes of its scheduled time, not to the exact second.
+- **Keep one active row per `type` per `publish_date`.** If two rows tie on the
+  newest date, the result is ambiguous — bump the date or set the old one to `FALSE`.
 - **Blank rows are ignored**, so a stray empty row won't break anything.
 - **File format:** upload a `.puz` (from Crosshare) *or* an already-converted
   crossword `.json` file (the older standard puzzles are JSON). The backend
@@ -82,7 +89,7 @@ Editor → Crosshare (.puz) → Google Drive folder (files)
                                    ▼
                           Backend (Express, k8s)
                           - reads the Sheet CSV
-                          - picks newest active row for the type
+                          - picks the newest active row whose publish time has passed
                           - downloads the .puz from Drive
                           - converts .puz → crossword JSON
                           - caches + serves it
@@ -101,7 +108,8 @@ leak — which is what keeps it running with minimal maintenance.
 | File | Role |
 |------|------|
 | `backend/index.js` | The `/api/crossword/latest` endpoint; caching; source selection |
-| `backend/sheet.js` | Fetch + parse the Sheet CSV, pick the newest active row, resolve Drive links |
+| `backend/sheet.js` | Fetch + parse the Sheet CSV, apply the scheduled publish time (LA time, daylight-saving aware), pick the newest active row that's due, resolve Drive links |
+| `backend/sheet.test.js` | Tests for the date + scheduling logic — run with `npm test` in `backend/` |
 | `backend/puz.js`   | Convert a `.puz` file (or pass through an already-made crossword `.json`) into the JSON the frontend expects |
 | `frontend/layouts/HomeLayout/index.jsx` | Fetches from the backend and renders the puzzle (or an empty state) |
 | `backend/crossword-backend-dply.yaml` | Backend Kubernetes deployment + the `CROSSWORD_SHEET_URL` setting |
@@ -153,7 +161,7 @@ Reverting is easy because nothing is deleted and the WordPress fallback still
 exists during migration. From least to most drastic:
 
 1. **Bad puzzle data:** fix it in the Sheet (set `active = FALSE` or correct the
-   `date`). No deploy needed.
+   `publish_date`). No deploy needed.
 2. **Flip the backend off the Sheet fast (no rebuild):**
    ```bash
    kubectl set env deployment/crossword-backend CROSSWORD_SHEET_URL-
@@ -194,8 +202,16 @@ Drive under an account the organization controls.
 - **`frontend/.env.local`** (if present) is a local-only override pointing the
   frontend at a local backend. It is excluded from the production build via
   `frontend/.dockerignore` — do not remove that exclusion.
+- **Publish timing is computed at read time, not by a scheduler.** On every
+  request the backend compares "now" (in LA time) against each row's
+  `publish_date`/`publish_time`, so there is no cron job or background worker to
+  keep alive — a future-scheduled puzzle simply starts winning once its time
+  passes. The timezone/daylight-saving handling lives in `backend/sheet.js`
+  (`publishInstant`) and is covered by `backend/sheet.test.js`.
+- **The run-date column is read as `publish_date`, or the older `date` if that's
+  what a Sheet still uses** — both work, so an older sheet won't break.
 - The backend caches the **converted puzzle** (the expensive download + parse)
-  keyed on the file link, but **re-applies the Sheet's `author`/`title`/`date` on
+  keyed on the file link, but **re-applies the Sheet's `author`/`title`/date on
   every request** — so metadata edits appear within a few minutes (Google's CSV
   cache), no restart needed. Changing the actual **grid/clues** means uploading a
   new file and pointing `puz_url` at it (that conversion is what's cached).
