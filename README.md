@@ -128,5 +128,4 @@ that keep this running long-term — are in **[MAINTAINING.md](./MAINTAINING.md)
 ## Credits
 
 Built on [react-crossword](https://github.com/JaredReisinger/react-crossword) by Jared
-Reisinger (MIT License). Some puzzle content is adapted from *The Crossword Puzzle Book*
-(1924), courtesy of Project Gutenberg.
+Reisinger (MIT License).

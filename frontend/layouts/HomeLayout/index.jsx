@@ -140,9 +140,7 @@ export default function HomeLayout() {
 
       <footer className="colophon">
         <p>
-          Built on react-crossword by Jared Reisinger (MIT License). Some puzzle
-          content adapted from The Crossword Puzzle Book (1924), courtesy of
-          Project Gutenberg.
+          Built on react-crossword by Jared Reisinger (MIT License).
         </p>
       </footer>
     </div>
