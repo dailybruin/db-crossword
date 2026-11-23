@@ -22,6 +22,23 @@ export default function HomeLayout() {
   const [state, setState] = useState({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
 
+  // Keep the page title and meta description in step with which puzzle this is,
+  // so search engines and shared links describe the page instead of scraping
+  // the clue list. The crawler renders JS, so these runtime updates are seen.
+  useEffect(() => {
+    document.title = `${isMini ? "Mini Crossword" : "Crossword"} - Daily Bruin`;
+    const desc = isMini
+      ? "Play the Daily Bruin's daily mini crossword — a quick puzzle from UCLA's student newspaper, free to solve in your browser."
+      : "Play the Daily Bruin's crossword — a full-size puzzle from UCLA's student newspaper, free to solve in your browser.";
+    let tag = document.querySelector('meta[name="description"]');
+    if (!tag) {
+      tag = document.createElement("meta");
+      tag.setAttribute("name", "description");
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute("content", desc);
+  }, [isMini]);
+
   useEffect(() => {
     const controller = new AbortController();
     setState({ status: "loading" });
