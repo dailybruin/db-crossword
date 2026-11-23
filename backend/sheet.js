@@ -155,6 +155,32 @@ export function listPuzzles(rows, type) {
   return out;
 }
 
+// A row's correction note, or null when the `correction` cell is blank. The
+// update date and time come from `updated_date` (YYYY-MM-DD) and `updated_time`
+// (HH:MM, LA time), the same formats as the publish columns. A time the Sheet
+// displays as "3:00 PM" is read as 15:00, so a column left on a 12-hour format
+// still comes out right. Either is passed on as "" when blank or malformed, so
+// the page can still show the note itself. The time is normalized to "HH:MM".
+export function correctionFromRow(row) {
+  const text = (row.correction || "").trim();
+  if (!text) return null;
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(row.updated_date || "") ? row.updated_date : "";
+  const t = /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(?:([ap])\.?m\.?)?$/i.exec(
+    (row.updated_time || "").trim()
+  );
+  let time = "";
+  if (date && t) {
+    let hh = Number(t[1]);
+    const mm = Number(t[2]);
+    const ampm = t[3]?.toLowerCase();
+    const ok = ampm ? hh >= 1 && hh <= 12 : hh <= 23;
+    if (ampm === "p" && hh < 12) hh += 12;
+    if (ampm === "a" && hh === 12) hh = 0;
+    if (ok && mm <= 59) time = `${String(hh).padStart(2, "0")}:${t[2]}`;
+  }
+  return { text, date, time };
+}
+
 // Turn any Google Drive share link (or bare id / uc URL) into a direct-download
 // URL the server can GET without auth.
 export function driveDirectUrl(link) {

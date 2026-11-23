@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from "cors";
 import fetch from 'node-fetch';
-import { fetchRows, pickLatest, pickByDate, listPuzzles, fetchPuz } from './sheet.js';
+import { fetchRows, pickLatest, pickByDate, listPuzzles, fetchPuz, correctionFromRow } from './sheet.js';
 import { toCrossword } from './puz.js';
 
 const app = express();
@@ -33,8 +33,8 @@ async function convert(puzUrl) {
 }
 
 // Build the response for a single Sheet row: the cached conversion plus the
-// Sheet's own author/title applied fresh each request (editor-controlled and
-// authoritative), without mutating the cached conversion. The Sheet is the
+// Sheet's own author/title and correction note, applied fresh each request
+// (editor-controlled and authoritative), without mutating the cached conversion. The Sheet is the
 // source of truth for the displayed title: a blank cell shows no title rather
 // than leaking the .puz's internal name (often a filename).
 async function payloadForRow(row) {
@@ -42,7 +42,7 @@ async function payloadForRow(row) {
   const crossword = { ...base, meta: { ...base.meta } };
   if (row.author) crossword.meta.author = row.author;
   crossword.meta.title = row.title || "";
-  return { date: row.date, crossword };
+  return { date: row.date, crossword, correction: correctionFromRow(row) };
 }
 
 async function latestFromSheet(type) {

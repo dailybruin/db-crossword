@@ -109,7 +109,11 @@ export default function HomeLayout() {
 
       {state.status === "ready" && (
         /* Remounting on the puzzle identity lets the grid resize from scratch. */
-        <Crossword key={`${type}-${date || "latest"}`} data={state.puzzle.crossword} />
+        <Crossword
+          key={`${type}-${date || "latest"}`}
+          data={state.puzzle.crossword}
+          correction={state.puzzle.correction}
+        />
       )}
 
       {state.status === "loading" && (

@@ -35,10 +35,13 @@
   grid-template-columns:
     calc(var(--board-h) * var(--aspect, 1))
     minmax(280px, var(--clue-max));
-  gap: 34px;
+  /* The board is one row of --board-h. A correction note, when there is one,
+     takes a second row under the grid, so the clue column keeps its height. */
+  grid-template-rows: var(--board-h);
+  column-gap: 34px;
+  row-gap: 14px;
   /* Flush left, so the grid, the timer and the masthead share one edge. */
   justify-content: start;
-  height: var(--board-h);
   margin-top: 22px;
 }
 
@@ -53,6 +56,7 @@
 }
 
 .board__grid {
+  grid-area: 1 / 1;
   min-width: 0;
 }
 
@@ -106,6 +110,7 @@
 /* -------------------------------------------------------------- clue list */
 
 .board__clues {
+  grid-area: 1 / 2;
   display: flex;
   gap: 26px;
   min-height: 0;
@@ -199,6 +204,19 @@
 /* Hidden where the clue lists are already on screen. */
 .current-clue-dock {
   display: none;
+}
+
+/* ------------------------------------------------------------- correction */
+
+/* Matches the corrections note on dailybruin.com: small, gray, italic. */
+.correction {
+  grid-area: 2 / 1;
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--muted);
 }
 
 /* ----------------------------------------------------------------- solved */
@@ -355,6 +373,10 @@
 
   .current-clue__step:active {
     background: var(--sky);
+  }
+
+  .correction {
+    margin-top: 14px;
   }
 
   .board__clues {

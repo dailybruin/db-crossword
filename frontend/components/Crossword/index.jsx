@@ -25,12 +25,13 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import AssistBar from "../AssistBar";
 import { crosswordTheme } from "./theme";
 import { formatTime } from "./format";
+import { formatUpdated } from "../../lib/date";
 import "./crossword.css";
 
 /** react-crossword draws every cell as 10 units square in the SVG's viewBox. */
 const CELL = 10;
 
-export default function Crossword({ data }) {
+export default function Crossword({ data, correction }) {
   const crosswordRef = useRef(null);
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
@@ -106,6 +107,7 @@ export default function Crossword({ data }) {
         setWrongCells={setWrongCells}
         onRevealAll={handleRevealAll}
         onRestart={handleRestart}
+        correction={correction}
       />
       {solved && !cardDismissed && (
         <SolvedCard
@@ -128,6 +130,7 @@ function Board({
   setWrongCells,
   onRevealAll,
   onRestart,
+  correction,
 }) {
   const { rows, cols, gridData, selectedDirection, selectedNumber } =
     useContext(CrosswordContext);
@@ -200,12 +203,34 @@ function Board({
 
         <CurrentClue />
 
+        <Correction correction={correction} />
+
         <div className="board__clues">
           <ClueList direction="across" label="Across" />
           <ClueList direction="down" label="Down" />
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * An editor's correction note from the Sheet, in italics like the main site's.
+ * Sits under the grid on desktop, and between the current clue and the clue
+ * lists on phones.
+ */
+function Correction({ correction }) {
+  if (!correction?.text) return null;
+  // "…at 3 p.m." already ends in a period; don't add a second one.
+  const stamp = correction.date ? formatUpdated(correction.date, correction.time) : "";
+  const when = stamp
+    ? `This crossword was updated ${stamp}${stamp.endsWith(".") ? "" : "."} `
+    : "";
+  return (
+    <p className="correction">
+      {when}
+      {correction.text}
+    </p>
   );
 }
 

@@ -29,4 +29,28 @@ export function dateParts(str) {
   return { day: d, mo: MONTHS_SHORT[m].toUpperCase(), year: y };
 }
 
+// AP style month abbreviations: March through July are never shortened.
+const MONTHS_AP = [
+  "Jan.", "Feb.", "March", "April", "May", "June",
+  "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec.",
+];
+
+// "15:00" -> "3 p.m.", "09:30" -> "9:30 a.m.", "12:00" -> "noon" (AP style)
+export function formatTimeAP(hhmm) {
+  const [h, m] = hhmm.split(":").map(Number);
+  if (h === 12 && m === 0) return "noon";
+  if (h === 0 && m === 0) return "midnight";
+  const hour = h % 12 || 12;
+  const mins = m ? `:${String(m).padStart(2, "0")}` : "";
+  return `${hour}${mins} ${h < 12 ? "a.m." : "p.m."}`;
+}
+
+// ("2026-11-22", "15:00") -> "Nov. 22, 2026, at 3 p.m."; a blank time gives
+// just "Nov. 22, 2026".
+export function formatUpdated(date, time) {
+  const { y, m, d } = parseDate(date);
+  const day = `${MONTHS_AP[m]} ${d}, ${y}`;
+  return time ? `${day}, at ${formatTimeAP(time)}` : day;
+}
+
 export { MONTHS, MONTHS_SHORT };
