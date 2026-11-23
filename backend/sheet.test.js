@@ -2,7 +2,7 @@
 // (node --test). No framework needed — Node's built-in test runner.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { publishInstant, activePuzzles, rowsFromCsv } from "./sheet.js";
+import { publishInstant, activePuzzles, rowsFromCsv, correctionFromRow } from "./sheet.js";
 
 // LA is UTC-7 in summer (PDT) and UTC-8 in winter (PST). The offset must come
 // from the date itself, not a constant, so these two must differ by an hour.
@@ -86,4 +86,41 @@ test("activePuzzles: kill switch hides a row even after its time", () => {
   const now = Date.UTC(2030, 0, 1, 0, 0); // far future: every time has passed
   const live = activePuzzles(rows, "mini", now);
   assert.ok(!live.some((r) => r.date === "2026-08-04"));
+});
+
+test("correctionFromRow: blank correction means no note", () => {
+  assert.equal(correctionFromRow({ correction: "  ", updated_date: "2026-11-22" }), null);
+  assert.equal(correctionFromRow({}), null);
+});
+
+test("correctionFromRow: passes text, date and a normalized time", () => {
+  assert.deepEqual(
+    correctionFromRow({ correction: " Fixed 14-Across. ", updated_date: "2026-11-22", updated_time: "9:05" }),
+    { text: "Fixed 14-Across.", date: "2026-11-22", time: "09:05" }
+  );
+});
+
+test("correctionFromRow: malformed or missing date/time are dropped, note kept", () => {
+  assert.deepEqual(
+    correctionFromRow({ correction: "x", updated_date: "11/22/2026", updated_time: "15:00" }),
+    { text: "x", date: "", time: "" }
+  );
+  assert.deepEqual(
+    correctionFromRow({ correction: "x", updated_date: "2026-11-22", updated_time: "afternoon" }),
+    { text: "x", date: "2026-11-22", time: "" }
+  );
+  assert.deepEqual(
+    correctionFromRow({ correction: "x", updated_date: "2026-11-22", updated_time: "25:00" }),
+    { text: "x", date: "2026-11-22", time: "" }
+  );
+});
+
+test("correctionFromRow: 12-hour times from the Sheet read correctly", () => {
+  const time = (updated_time) =>
+    correctionFromRow({ correction: "x", updated_date: "2026-11-22", updated_time }).time;
+  assert.equal(time("3:00 PM"), "15:00");
+  assert.equal(time("12:30 am"), "00:30");
+  assert.equal(time("12:00 PM"), "12:00");
+  assert.equal(time("15:00:00"), "15:00");
+  assert.equal(time("13:00 PM"), "");
 });
