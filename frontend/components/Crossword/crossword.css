@@ -219,6 +219,74 @@
   color: var(--muted);
 }
 
+/* ----------------------------------------------------------------- paused */
+
+/* The board goes inert while paused; this covers it so the letters can't be
+   studied with the clock stopped either. */
+.board-frame {
+  position: relative;
+}
+
+.paused {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding: clamp(40px, 14vh, 150px) 20px 20px;
+  background: var(--paper);
+  animation: solved-in 160ms ease-out;
+}
+
+.paused__card {
+  width: min(360px, 100%);
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  border-top: 8px solid var(--bruin-blue);
+  padding: 26px 30px 24px;
+  text-align: center;
+}
+
+.paused__eyebrow {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: 118%;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bruin-blue);
+}
+
+.paused__detail {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.paused__resume {
+  margin-top: 20px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1.5px solid var(--ink);
+  background: var(--card);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.paused__resume:hover {
+  background: var(--sky);
+}
+
 /* ----------------------------------------------------------------- solved */
 
 .solved {

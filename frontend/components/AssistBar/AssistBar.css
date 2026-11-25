@@ -57,6 +57,14 @@
   flex-wrap: wrap;
 }
 
+.assist__toggle:disabled,
+.tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+  border-color: var(--rule);
+  background: var(--card);
+}
+
 /* Wide enough for its longest result, so reporting one doesn't shove the row. */
 .tool--check {
   min-width: 128px;

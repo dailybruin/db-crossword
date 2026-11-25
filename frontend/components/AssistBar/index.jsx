@@ -13,7 +13,9 @@ import "./AssistBar.css";
 export default function AssistBar({
   time,
   isRunning,
-  onToggleTimer,
+  paused,
+  done,
+  onTogglePause,
   onCheck,
   onRevealWord,
   onRevealAll,
@@ -26,8 +28,9 @@ export default function AssistBar({
         <button
           type="button"
           className="assist__toggle"
-          onClick={onToggleTimer}
-          aria-label={isRunning ? "Pause the timer" : "Resume the timer"}
+          onClick={onTogglePause}
+          disabled={done}
+          aria-label={isRunning ? "Pause the puzzle" : "Resume the puzzle"}
         >
           {isRunning ? (
             <Pause size={14} aria-hidden="true" />
@@ -39,8 +42,13 @@ export default function AssistBar({
       </div>
 
       <div className="assist__tools">
-        <CheckTool onCheck={onCheck} />
-        <button type="button" className="tool" onClick={onRevealWord}>
+        <CheckTool onCheck={onCheck} disabled={paused} />
+        <button
+          type="button"
+          className="tool"
+          onClick={onRevealWord}
+          disabled={paused}
+        >
           <Lightbulb size={15} aria-hidden="true" />
           <span>Reveal word</span>
         </button>
@@ -49,12 +57,14 @@ export default function AssistBar({
           label="Reveal all"
           confirmLabel="Reveal all?"
           onConfirm={onRevealAll}
+          disabled={paused}
         />
         <ConfirmTool
           icon={<Eraser size={15} aria-hidden="true" />}
           label="Clear grid"
           confirmLabel="Clear grid?"
           onConfirm={onClear}
+          disabled={paused}
         />
       </div>
     </div>
@@ -65,7 +75,7 @@ export default function AssistBar({
  * Marking wrong letters is invisible when there are none, so the button says
  * what it found.
  */
-function CheckTool({ onCheck }) {
+function CheckTool({ onCheck, disabled }) {
   const [result, setResult] = useState(null);
 
   useEffect(() => {
@@ -83,6 +93,7 @@ function CheckTool({ onCheck }) {
       type="button"
       className="tool tool--check"
       onClick={() => setResult(onCheck())}
+      disabled={disabled}
       aria-live="polite"
     >
       <CheckCircle size={15} aria-hidden="true" />
@@ -95,8 +106,13 @@ function CheckTool({ onCheck }) {
  * A tool that throws away work, so it asks once. A stray tap is easy on a
  * phone; getting your grid back after one isn't.
  */
-function ConfirmTool({ icon, label, confirmLabel, onConfirm }) {
+function ConfirmTool({ icon, label, confirmLabel, onConfirm, disabled }) {
   const [armed, setArmed] = useState(false);
+
+  // Don't let a tap from before the pause carry over into a confirm after it.
+  useEffect(() => {
+    if (disabled) setArmed(false);
+  }, [disabled]);
 
   useEffect(() => {
     if (!armed) return undefined;
@@ -108,6 +124,7 @@ function ConfirmTool({ icon, label, confirmLabel, onConfirm }) {
     <button
       type="button"
       className={armed ? "tool tool--armed" : "tool"}
+      disabled={disabled}
       onClick={() => {
         if (armed) {
           setArmed(false);

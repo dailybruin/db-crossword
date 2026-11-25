@@ -21,7 +21,7 @@ import {
   CrosswordGrid,
   CrosswordContext,
 } from "@jaredreisinger/react-crossword";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import AssistBar from "../AssistBar";
 import { crosswordTheme } from "./theme";
 import { formatTime } from "./format";
@@ -34,7 +34,11 @@ const CELL = 10;
 export default function Crossword({ data, correction }) {
   const crosswordRef = useRef(null);
   const [time, setTime] = useState(0);
-  const [isRunning, setIsRunning] = useState(true);
+  // Paused is the solver's choice; done means the clock has nothing left to
+  // time (solved, or every answer revealed). Either one stops it.
+  const [paused, setPaused] = useState(false);
+  const [done, setDone] = useState(false);
+  const isRunning = !paused && !done;
   const [wrongCells, setWrongCells] = useState(() => new Set());
   const [solved, setSolved] = useState(false);
   const [cardDismissed, setCardDismissed] = useState(false);
@@ -61,19 +65,20 @@ export default function Crossword({ data, correction }) {
 
   const handleCrosswordCorrect = useCallback((isCorrect) => {
     if (!isCorrect || revealedAll.current) return;
-    setIsRunning(false);
+    setDone(true);
     setSolved(true);
   }, []);
 
   const handleRevealAll = useCallback(() => {
     revealedAll.current = true;
-    setIsRunning(false);
+    setDone(true);
   }, []);
 
   const handleRestart = useCallback(() => {
     revealedAll.current = false;
     setTime(0);
-    setIsRunning(true);
+    setPaused(false);
+    setDone(false);
     setSolved(false);
     setCardDismissed(false);
   }, []);
@@ -102,7 +107,9 @@ export default function Crossword({ data, correction }) {
         crosswordRef={crosswordRef}
         time={time}
         isRunning={isRunning}
-        onToggleTimer={() => setIsRunning((running) => !running)}
+        paused={paused}
+        done={done}
+        onTogglePause={() => setPaused((p) => !p)}
         wrongCells={wrongCells}
         setWrongCells={setWrongCells}
         onRevealAll={handleRevealAll}
@@ -125,7 +132,9 @@ function Board({
   crosswordRef,
   time,
   isRunning,
-  onToggleTimer,
+  paused,
+  done,
+  onTogglePause,
   wrongCells,
   setWrongCells,
   onRevealAll,
@@ -134,6 +143,21 @@ function Board({
 }) {
   const { rows, cols, gridData, selectedDirection, selectedNumber } =
     useContext(CrosswordContext);
+  const boardRef = useRef(null);
+
+  // Pausing has to stop the solving, not just the clock. `inert` takes the
+  // whole board out of play — no taps, no focus, no typing into the grid's
+  // hidden input — and the cover hides the letters until you resume.
+  useEffect(() => {
+    const board = boardRef.current;
+    if (!board) return;
+    board.inert = paused;
+    // Some browsers keep the phone keyboard up for an input that just went
+    // inert, so drop focus explicitly.
+    if (paused && board.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+  }, [paused]);
 
   const checkAnswers = useCallback(() => {
     const wrong = new Set();
@@ -186,29 +210,59 @@ function Board({
       <AssistBar
         time={time}
         isRunning={isRunning}
-        onToggleTimer={onToggleTimer}
+        paused={paused}
+        done={done}
+        onTogglePause={onTogglePause}
         onCheck={checkAnswers}
         onRevealWord={revealWord}
         onRevealAll={revealAll}
         onClear={clearGrid}
       />
 
-      <div className="board">
-        <div className="board__grid">
-          <div className="puzzle-grid">
-            <CrosswordGrid />
-            <WrongMarks cells={wrongCells} rows={rows} cols={cols} />
+      <div className="board-frame">
+        <div className="board" ref={boardRef}>
+          <div className="board__grid">
+            <div className="puzzle-grid">
+              <CrosswordGrid />
+              <WrongMarks cells={wrongCells} rows={rows} cols={cols} />
+            </div>
+          </div>
+
+          <CurrentClue />
+
+          <Correction correction={correction} />
+
+          <div className="board__clues">
+            <ClueList direction="across" label="Across" />
+            <ClueList direction="down" label="Down" />
           </div>
         </div>
+        {paused && <PausedCover onResume={onTogglePause} />}
+      </div>
+    </div>
+  );
+}
 
-        <CurrentClue />
+function PausedCover({ onResume }) {
+  const resumeRef = useRef(null);
+  useEffect(() => {
+    resumeRef.current?.focus({ preventScroll: true });
+  }, []);
 
-        <Correction correction={correction} />
-
-        <div className="board__clues">
-          <ClueList direction="across" label="Across" />
-          <ClueList direction="down" label="Down" />
-        </div>
+  return (
+    <div className="paused" role="region" aria-label="Puzzle paused">
+      <div className="paused__card">
+        <p className="paused__eyebrow">Paused</p>
+        <p className="paused__detail">The clock is stopped. Ready when you are.</p>
+        <button
+          type="button"
+          className="paused__resume"
+          ref={resumeRef}
+          onClick={onResume}
+        >
+          <Play size={14} aria-hidden="true" />
+          <span>Resume</span>
+        </button>
       </div>
     </div>
   );
